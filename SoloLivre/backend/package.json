@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "module": "index.js",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "nodejs": "^0.0.0",
+    "vue-router": "^4.5.0"
+  },
+  "scripts": {
+    "dev": "bun index.js"
+  }
+}
