@@ -1,0 +1,14 @@
+@keyframes mymove {
+    from {
+      background-color: red;
+    }
+    to {
+      background-color: blue;
+    }
+  }
+  
+  .animated-box {
+    width: 200px;
+    height: 200px;
+    animation: mymove 3s infinite alternate;
+  }
