@@ -1,20 +1,40 @@
-const express = require('express');
-const cors = require('cors');
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
 
-const app = express();
-app.use(cors());
+dotenv.config();
 
-const products = [
-  { id: 1, name: 'Camisa', price: 50 },
-  { id: 2, name: 'Calça Jeans', price: 120 },
-  { id: 3, name: 'Tênis', price: 200 }
-];
-
-app.get('/api/products', (req, res) => {
-  res.json(products);
+const connection = await mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
 });
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+console.log("🟢 Conectado ao banco com sucesso!");
+
+export default connection;
+
+// Inserir um produto
+export async function inserirProduto(nome, preco, quantidade, descricao) {
+  const [result] = await connection.execute(
+    'INSERT INTO produtos (nome, preco, quantidade, descricao) VALUES (?, ?, ?, ?)',
+    [nome, preco, quantidade, descricao]
+  );
+  console.log('✅ Produto inserido com ID:', result.insertId);
+  return result.insertId;
+}
+
+// Buscar todos os produtos
+export async function listarProdutos() {
+  const [rows] = await connection.execute('SELECT * FROM produtos');
+  console.log('📦 Produtos encontrados:', rows);
+  return rows;
+}
+
+// Teste de inserção e leitura
+(async () => {
+  await inserirProduto('Camiseta Azul', 59.90, 10, 'Tecido 100% algodão');
+  const produtos = await listarProdutos();
+  console.log(produtos);
+})();
