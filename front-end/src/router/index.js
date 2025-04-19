@@ -10,14 +10,13 @@ const routes = [
   { path: '/about', component: Sobre, name: 'Sobre' },
   { path: '/produtos', component: Produtos, name: 'Produtos' },
   { path: '/cadastrocliente', component: CadastroCliente, name: 'CadastroCliente' },
-  { path : '/suportecliente', component: SuporteCliente, name: 'SuporteCliente' },
+  { path: '/suportecliente', component: SuporteCliente, name: 'SuporteCliente' },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
-
 
 let firstLoad = true
 
