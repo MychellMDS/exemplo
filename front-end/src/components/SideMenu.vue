@@ -28,7 +28,7 @@
           <router-link to="/SuporteCliente" @click="isOpen = false">Suporte</router-link>
         </li>
         <li>
-          <router-link to="/About" @click="isOpen = false">Sobre nós</router-link>
+          <button class="logout-button" @click="logout">Logout</button>
         </li>
       </ul>
     </div>
@@ -37,16 +37,31 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { getAuth, signOut } from 'firebase/auth'
 
 const isOpen = ref(false)
+const router = useRouter()
 
 function toggleMenu() {
   isOpen.value = !isOpen.value
 }
+
+function logout() {
+  const auth = getAuth()
+  signOut(auth)
+    .then(() => {
+      isOpen.value = false
+      router.push('/login') // redireciona para Login.vue
+    })
+    .catch((error) => {
+      console.error('Erro ao fazer logout:', error)
+      alert('Erro ao sair. Tente novamente.')
+    })
+}
 </script>
 
 <style scoped>
-/* Transição para o botão ☰ */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -111,5 +126,21 @@ function toggleMenu() {
   color: var(--text-color);
   text-decoration: none;
   display: block;
+}
+
+.logout-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font: inherit;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
 }
 </style>

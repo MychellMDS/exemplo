@@ -3,27 +3,43 @@
     <h2 class="welcome-text">
       Olá, seja bem-vindo à SoloLivre! Aqui você encontrará diversos instrumentos com os melhores preços!
     </h2>
-    <button class="login-btn google" @click="loginGoogle">Login com Google</button>
-    <button class="login-btn facebook" @click="loginFacebook">Login com Facebook</button>
+
+    <!-- A imagem agora é referenciada a partir do diretório public -->
+    <img src="c:\Users\cex\Documents\Imagem do WhatsApp de 2025-04-20 à(s) 20.10.13_d373e182.jpg" alt="Logo da SoloLivre" class="SoloLivre" />
+
+    <section class="sobre-nos">
+      <h3>Quem somos?</h3>
+      <p>
+        Somos uma empresa dedicada e competente que atua no mercado de instrumentos musicais. Prezamos sempre pela qualidade e eficiência de nossos produtos.
+      </p>
+    </section>
+
     <router-link to="/SuporteCliente" class="support-link">
       <i class="fas fa-headset"></i> Suporte
     </router-link>
+  </div>
+
+  <!-- Seção "Entre em contato conosco" agora no canto inferior esquerdo -->
+  <div class="contato-fixo">
+    <h3>Entre em contato conosco</h3>
+    <ul>
+      <li><i class="fas fa-envelope"></i> Email: <a href="mailto:contato@sololivre.com">contato@sololivre.com</a></li>
+      <li><i class="fas fa-phone"></i> WhatsApp: <a href="https://wa.me/qr/VKTUSG7TVML201" target="_blank">(11) 1234-5678</a></li>
+      <li>
+        <i class="fas fa-share-alt"></i> Redes sociais:
+        <ul>
+          <li><i class="fab fa-facebook"></i> <a href="https://facebook.com/sololivre" target="_blank">Facebook</a></li>
+          <li><i class="fab fa-instagram"></i> <a href="https://instagram.com/sololivre" target="_blank">Instagram</a></li>
+          <li><i class="fab fa-twitter"></i> <a href="https://twitter.com/sololivre" target="_blank">Twitter</a></li>
+        </ul>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HomePage',
-  methods: {
-    loginGoogle() {
-      // Lógica de login com Google
-      console.log('Login com Google');
-    },
-    loginFacebook() {
-      // Lógica de login com Facebook
-      console.log('Login com Facebook');
-    }
-  }
+  name: 'HomePage'
 }
 </script>
 
@@ -39,35 +55,18 @@ export default {
   color: var(--text-color);
 }
 
-.login-btn {
-  padding: 12px 24px;
-  font-size: 1rem;
-  margin: 10px;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s;
+.SoloLivre {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 30px;
 }
 
-.login-btn:hover {
-  transform: scale(1.05);
-}
-
-.google {
-  background-color: #db4437; /* Vermelho Google */
-}
-
-.google:hover {
-  background-color: #c1351d;
-}
-
-.facebook {
-  background-color: #3b5998; /* Azul Facebook */
-}
-
-.facebook:hover {
-  background-color: #2d4373;
+.sobre-nos {
+  margin-top: 30px;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .support-link {
@@ -87,6 +86,35 @@ export default {
 }
 
 .support-link:hover {
+  text-decoration: underline;
+}
+
+/* Estilo para fixar o "contato" no canto inferior esquerdo sem fundo escuro */
+.contato-fixo {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  font-size: 1rem;
+  z-index: 10;
+}
+
+.contato-fixo ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contato-fixo li {
+  margin: 8px 0;
+}
+
+/* Garantir que os links tenham cor azul e que a cor do texto mude no hover */
+.contato-fixo a {
+  color: #007bff; /* Azul */
+  text-decoration: none;
+}
+
+.contato-fixo a:hover {
+  color: #0056b3; /* Azul escuro no hover */
   text-decoration: underline;
 }
 </style>

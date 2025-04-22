@@ -21,28 +21,38 @@
   </template>
   
   <script>
-  export default {
-    name: 'SuporteCliente',
-    data() {
-      return {
-        form: {
-          nome: '',
-          email: '',
-          mensagem: ''
-        }
-      };
-    },
-    methods: {
-      enviarMensagem() {
-        console.log("Mensagem enviada:", this.form);
+import axios from 'axios';
+
+export default {
+  name: 'SuporteCliente',
+  data() {
+    return {
+      form: {
+        nome: '',
+        email: '',
+        mensagem: ''
+      }
+    };
+  },
+  methods: {
+    async enviarMensagem() {
+      try {
+        const response = await axios.post('http://localhost:3000/api/suporte', this.form);
         alert("✅ Sua mensagem foi enviada com sucesso!");
+        console.log("Resposta do servidor:", response.data);
+
+        // Limpar formulário
         this.form.nome = '';
         this.form.email = '';
         this.form.mensagem = '';
+      } catch (error) {
+        console.error("Erro ao enviar mensagem:", error);
+        alert("❌ Ocorreu um erro ao enviar sua mensagem. Tente novamente.");
       }
     }
-  };
-  </script>
+  }
+};
+</script>
   
   <style scoped>
   .suporte {
