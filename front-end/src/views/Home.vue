@@ -1,11 +1,16 @@
 <template>
   <div class="home-container">
+    <!-- Nome do usuário logado -->
+    <p v-if="userStore.usuario" class="boas-vindas">
+      👋 Olá,Cliente {{ userStore.usuario.nome }}!
+    </p>
+
     <h2 class="welcome-text">
-      Olá, seja bem-vindo à SoloLivre! Aqui você encontrará diversos instrumentos com os melhores preços!
+      seja bem-vindo à SoloLivre! Aqui você encontrará diversos instrumentos com os melhores preços!
     </h2>
 
     <!-- A imagem agora é referenciada a partir do diretório public -->
-    <img src="c:\Users\cex\Documents\Imagem do WhatsApp de 2025-04-20 à(s) 20.10.13_d373e182.jpg" alt="Logo da SoloLivre" class="SoloLivre" />
+    <img src="/logo.jpg" alt="Logo da SoloLivre" class="SoloLivre" />
 
     <section class="sobre-nos">
       <h3>Quem somos?</h3>
@@ -37,16 +42,23 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HomePage'
-}
+<script setup>
+import { useUserStore } from '@/store/user'
+
+const userStore = useUserStore()
 </script>
 
 <style scoped>
 .home-container {
   text-align: center;
   padding: 40px 20px;
+}
+
+.boas-vindas {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #28a745;
 }
 
 .welcome-text {
@@ -107,14 +119,13 @@ export default {
   margin: 8px 0;
 }
 
-/* Garantir que os links tenham cor azul e que a cor do texto mude no hover */
 .contato-fixo a {
-  color: #007bff; /* Azul */
+  color: #007bff;
   text-decoration: none;
 }
 
 .contato-fixo a:hover {
-  color: #0056b3; /* Azul escuro no hover */
+  color: #0056b3;
   text-decoration: underline;
 }
 </style>

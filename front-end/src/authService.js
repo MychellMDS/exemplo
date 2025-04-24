@@ -1,4 +1,8 @@
-import { auth, googleProvider, facebookProvider, signInWithPopup } from './firebase';
+import { auth, googleProvider, signInWithPopup } from './firebase';
+import { FacebookAuthProvider } from 'firebase/auth';
+
+// Configurando o provedor do Facebook
+const facebookProvider = new FacebookAuthProvider();
 
 export const loginWithGoogle = async () => {
   try {

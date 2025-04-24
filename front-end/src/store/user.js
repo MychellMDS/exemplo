@@ -8,7 +8,7 @@ export const useUserStore = defineStore('user', {
   }),
 
   actions: {
-    async login(email, senha) {
+    async loginComEmailSenha(email, senha) {
       this.carregando = true
       this.erro = null
 
@@ -35,6 +35,12 @@ export const useUserStore = defineStore('user', {
       } finally {
         this.carregando = false
       }
+    },
+
+    // Usado no login com Google
+    setUsuario(usuario) {
+      this.usuario = usuario
+      this.erro = null
     },
 
     logout() {

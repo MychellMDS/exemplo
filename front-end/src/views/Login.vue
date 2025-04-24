@@ -35,7 +35,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { auth, provider, signInWithPopup } from '@/firebase'
 import { useUserStore } from '@/store/user'
 
@@ -44,44 +43,56 @@ const senha = ref('')
 const erro = ref('')
 const router = useRouter()
 const userStore = useUserStore()
+
 const fazerLogin = async () => {
+  erro.value = ''
   try {
-    console.log('Tentando login com:', email.value, senha.value);  // Log para verificar os dados
+    console.log('Tentando login com:', email.value, senha.value)
+    
+    await userStore.loginComEmailSenha(email.value, senha.value)
 
-    const { data } = await axios.post('http://localhost:3000/api/login', {
-      email: email.value,
-      senha: senha.value
-    });
 
-    console.log('Resposta de login:', data); // Log para ver o que o backend retornou
+    if (userStore.usuario) {
+      console.log('Login bem-sucedido:', userStore.usuario)
 
-    userStore.login(data);
-
-    if (data.tipo === 'admin') {
-      router.push('/admin');
+      if (userStore.usuario.tipo === 'admin') {
+        router.push('/admin')
+      } else {
+        router.push('/')
+      }
     } else {
-      router.push('/');
+      erro.value = userStore.erro || '❌ Email ou senha inválidos'
     }
   } catch (e) {
-    erro.value = '❌ Email ou senha inválidos';
-    console.error('Erro no login:', e.response ? e.response.data : e);  // Mostra o erro completo
+    erro.value = '❌ Erro ao tentar login'
+    console.error('Erro ao tentar login:', e)
   }
 }
 
-
-
-
 const loginWithGoogle = async () => {
+  erro.value = ''
   try {
+    console.log('Iniciando login com Google...')
     const result = await signInWithPopup(auth, provider)
-    const emailGoogle = result.user.email
+    const token = await result.user.getIdToken()
 
-    // Exemplo básico: todo mundo que loga com Google é "cliente"
-    userStore.login({
-      email: emailGoogle,
-      tipo: 'cliente'
+    const res = await fetch('http://localhost:3000/api/google-login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token })
     })
 
+    if (!res.ok) {
+      const erroBackend = await res.json()
+      throw new Error(erroBackend.erro || 'Erro no login com Google')
+    }
+
+    const data = await res.json()
+    userStore.setUsuario(data)
+
+    console.log('Login com Google bem-sucedido:', data)
     router.push('/')
   } catch (error) {
     console.error('Erro ao fazer login com Google:', error)

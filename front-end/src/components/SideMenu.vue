@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isAdmin">
     <!-- Ícone ☰ com transição de fade -->
     <transition name="fade">
       <div v-if="!isOpen" class="menu-icon" @click="toggleMenu">
@@ -36,23 +36,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getAuth, signOut } from 'firebase/auth'
+import { useUserStore } from '../store/user' // ou '../../stores/user', conforme a pasta
+ // ajuste conforme o nome correto do seu store
 
 const isOpen = ref(false)
 const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
 
 function toggleMenu() {
   isOpen.value = !isOpen.value
 }
 
+const isAdmin = computed(() =>
+  userStore.user?.email === 'admin@email.com' || route.path === '/admin'
+)
+
 function logout() {
   const auth = getAuth()
   signOut(auth)
     .then(() => {
+      userStore.logout()
       isOpen.value = false
-      router.push('/login') // redireciona para Login.vue
+      router.push('/login')
     })
     .catch((error) => {
       console.error('Erro ao fazer logout:', error)
@@ -60,6 +69,11 @@ function logout() {
     })
 }
 </script>
+
+<style scoped>
+/* ... seu CSS continua igual ... */
+</style>
+
 
 <style scoped>
 .fade-enter-active,

@@ -2,158 +2,205 @@ const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
 const path = require('path');
+const admin = require('firebase-admin');
+const serviceAccount = require('./sololivre-d4c3d-firebase-adminsdk-fbsvc-6b7e236338.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 const app = express();
+
+// Adicionando cabeçalhos de segurança
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  next();
+});
+
+// Configuração do CORS
 app.use(cors());
 app.use(express.json());
 
 // Serve arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// Database connection
+// Conexão com o banco de dados
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'sololivre',
-    port: 3306,
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'sololivre',
+  port: 3306,
 });
 
 db.connect((err) => {
-    if (err) {
-        console.error('Database connection failed:', err);
-        process.exit(1); // Exit the process if the database connection fails
-    }
-    console.log('Connected to the database.');
+  if (err) {
+    console.error('Database connection failed:', err);
+    process.exit(1);
+  }
+  console.log('Connected to the database.');
 });
 
-// API endpoint to fetch products
+// Buscar produtos
 app.get('/api/produtos', (_, res) => {
-    const query = 'SELECT * FROM produtos'; // Replace 'produtos' with your table name
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error fetching products');
-        } else {
-            res.json(results);
-        }
-    });
+  db.query('SELECT * FROM produtos', (err, results) => {
+    if (err) return res.status(500).send('Error fetching products');
+    console.log('Produtos retornados:', results); // Log para ver os resultados
+    res.json(results);
+  });
 });
 
-// API endpoint to update a product
+// Atualizar produto
 app.put('/api/produtos/:id', (req, res) => {
-    const { id } = req.params;
-    const { nome, valor, descricao } = req.body; // Replace with your table columns
+  const { id } = req.params;
+  const { nome, valor, descricao } = req.body;
 
-    // Validate input
-    if (!nome || !valor || !descricao) {
-        return res.status(400).send('All fields (nome, valor, descricao) are required');
-    }
+  if (!nome || !valor || !descricao) {
+    return res.status(400).send('Todos os campos são obrigatórios');
+  }
 
-    const query = 'UPDATE produtos SET nome = ?, valor = ?, descricao = ? WHERE id = ?';
-    db.query(query, [nome, valor, descricao, id], (err, results) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error updating product');
-        } else if (results.affectedRows === 0) {
-            res.status(404).send('Product not found');
-        } else {
-            res.send('Product updated successfully');
-        }
-    });
+  const query = 'UPDATE produtos SET nome = ?, valor = ?, descricao = ? WHERE id = ?';
+  db.query(query, [nome, valor, descricao, id], (err, results) => {
+    if (err) return res.status(500).send('Erro ao atualizar produto');
+    if (results.affectedRows === 0) return res.status(404).send('Produto não encontrado');
+    res.send('Produto atualizado com sucesso');
+  });
 });
 
-// API endpoint to register a client
+// Cadastrar cliente
 app.post('/api/clientes', (req, res) => {
-    const { nome, email, telefone, endereco } = req.body; // Dados do cliente a serem cadastrados
+  const { nome, email, telefone, endereco } = req.body;
 
-    // Validação simples dos campos
-    if (!nome || !email || !telefone || !endereco) {
-        return res.status(400).send('Todos os campos (nome, email, telefone, endereco) são obrigatórios');
-    }
+  if (!nome || !email || !telefone || !endereco) {
+    return res.status(400).send('Todos os campos são obrigatórios');
+  }
 
-    // Query para inserir cliente no banco de dados
-    const query = 'INSERT INTO clientes (nome, email, telefone, endereco) VALUES (?, ?, ?, ?)';
-    db.query(query, [nome, email, telefone, endereco], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Erro ao cadastrar cliente');
-        }
-        res.status(201).json({ message: 'Cliente cadastrado com sucesso', id: result.insertId });
-    });
+  const query = 'INSERT INTO clientes (nome, email, telefone, endereco) VALUES (?, ?, ?, ?)';
+  db.query(query, [nome, email, telefone, endereco], (err, result) => {
+    if (err) return res.status(500).send('Erro ao cadastrar cliente');
+    console.log('Cliente cadastrado com sucesso:', result);
+    res.status(201).json({ message: 'Cliente cadastrado com sucesso', id: result.insertId });
+  });
 });
 
+// Login com email e senha
+// Login com email e senha
+// Login com email e senha
 app.post('/api/login', (req, res) => {
     const { email, senha } = req.body;
-
-    const query = 'SELECT * FROM clientes WHERE email = ?';
-    db.query(query, [email], (err, results) => {
-        if (err) {
-            console.error('Erro ao consultar o banco de dados:', err);
-            return res.status(500).json({ error: 'Erro ao consultar o banco de dados' });
-        }
-
-        if (results.length === 0) {
-            return res.status(401).json({ erro: 'Email não encontrado' });
-        }
-
-        const user = results[0];
-
-        // Comparando a senha fornecida com a senha armazenada
-        if (senha === user.senha) {
-            // Senha correta, login bem-sucedido
-            res.json({ email: user.email, tipo: 'cliente' }); // Ou 'admin' dependendo do tipo
-        } else {
-            // Senha incorreta
-            res.status(401).json({ erro: 'Credenciais inválidas' });
-        }
-    });
-});
-
+    console.log('Requisição de login recebida:', { email, senha });
   
+    const checkUser = (table, tipo) => {
+      return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM ?? WHERE email = ?`;
+        db.query(query, [table, email], (err, results) => {
+          if (err) {
+            console.error(`Erro ao consultar a tabela ${table}:`, err);
+            return reject(err);
+          }
   
-app.post('/api/google-login', (req, res) => {
+          if (results.length === 0) return resolve(null);
+  
+          const user = results[0];
+          if (user.senha && user.senha === senha) {
+            // Incluindo o campo nome aqui
+            return resolve({ nome: user.nome, email: user.email, tipo });
+          }
+  
+          return resolve(null);
+        });
+      });
+    };
+  
+    Promise.all([
+      checkUser('clientes', 'cliente'),
+      checkUser('admins', 'admin')
+    ])
+      .then(([cliente, admin]) => {
+        const user = admin || cliente;
+        if (!user) {
+          console.log('Credenciais inválidas para o email:', email);
+          return res.status(401).json({ erro: 'Credenciais inválidas' });
+        }
+  
+        console.log('Usuário logado com sucesso:', user);
+        res.json(user); // Responde agora com nome, email e tipo
+      })
+      .catch((err) => {
+        console.error('Erro ao verificar credenciais:', err);
+        res.status(500).json({ erro: 'Erro interno do servidor' });
+      });
+  });
+  
+// Login com Google
+app.post('/api/google-login', async (req, res) => {
     const { token } = req.body;
-
+  
     if (!token) {
-        return res.status(400).json({ error: 'Token is required' });
+      return res.status(400).json({ error: 'Token é obrigatório' });
     }
-
-    // Aqui você pode validar o token do Google e autenticar o usuário
-    // Exemplo básico:
-    console.log('Google token recebido:', token);
-
-    // Retorne uma resposta de sucesso
-    res.status(200).json({ message: 'Login com Google bem-sucedido!' });
-});
-
-// API endpoint to register a support request
-app.post('/api/suporte', (req, res) => {
-    const { nome, email, mensagem } = req.body;
-
-    // Verificação simples para garantir que todos os campos foram preenchidos
-    if (!nome || !email || !mensagem) {
-        return res.status(400).send('Todos os campos (nome, email, mensagem) são obrigatórios');
-    }
-
-    // Query para inserir a mensagem no banco de dados
-    const query = 'INSERT INTO suporte (nome, email, mensagem) VALUES (?, ?, ?)';
-    db.query(query, [nome, email, mensagem], (err, result) => {
+  
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      console.log('Decoded Token:', decodedToken); // Verifique se o token é válido
+      const { email, name } = decodedToken;
+  
+      // Verifica se o usuário já está cadastrado como cliente
+      db.query('SELECT * FROM clientes WHERE email = ?', [email], (err, results) => {
         if (err) {
-            console.error(err);
-            return res.status(500).send('Erro ao enviar mensagem de suporte');
+          console.error('Erro ao buscar cliente:', err);
+          return res.status(500).json({ error: 'Erro ao verificar usuário' });
         }
-        res.status(201).json({ message: 'Mensagem de suporte enviada com sucesso', id: result.insertId });
-    });
+  
+        if (results.length === 0) {
+          // Se não estiver, insere como novo cliente
+          db.query(
+            'INSERT INTO clientes (nome, email, telefone, endereco) VALUES (?, ?, "", "")',
+            [name || 'Usuário Google', email],
+            (err, result) => {
+              if (err) {
+                console.error('Erro ao inserir cliente:', err);
+                return res.status(500).json({ error: 'Erro ao criar conta' });
+              }
+  
+              // Responde com o nome, tipo e email após inserção do novo cliente
+              res.status(200).json({ nome: name || 'Usuário Google', tipo: 'cliente', email });
+            }
+          );
+        } else {
+          // Já está cadastrado, retorna os dados do cliente
+          res.status(200).json({ nome: results[0].nome, tipo: 'cliente', email });
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao verificar token do Google:', error);
+      res.status(401).json({ error: 'Token inválido ou expirado' });
+    }
+  });
+  
+
+// Enviar mensagem de suporte
+app.post('/api/suporte', (req, res) => {
+  const { nome, email, mensagem } = req.body;
+
+  if (!nome || !email || !mensagem) {
+    return res.status(400).send('Todos os campos são obrigatórios');
+  }
+
+  db.query('INSERT INTO suporte (nome, email, mensagem) VALUES (?, ?, ?)', [nome, email, mensagem], (err, result) => {
+    if (err) return res.status(500).send('Erro ao enviar mensagem');
+    res.status(201).json({ message: 'Mensagem enviada com sucesso', id: result.insertId });
+  });
 });
 
-// Redireciona todas as outras rotas para o arquivo index.html do Vue.js
+// Redireciona qualquer outra rota para o frontend
 app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-// Start the server
+// Start do servidor
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
