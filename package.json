@@ -10,6 +10,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "git": "^0.1.5",
     "git-filter-repo": "^0.0.30"
   }
 }
