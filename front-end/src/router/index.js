@@ -6,6 +6,9 @@ import SuporteCliente from '../views/SuporteCliente.vue'
 import Login from '../views/Login.vue'
 
 import { useUserStore } from '@/store/user'
+import Relatorios from '../views/relatorios.vue' // ajuste o caminho se necessário
+
+
 
 const routes = [
   { path: '/login', component: Login, name: 'Login' },
@@ -14,6 +17,7 @@ const routes = [
   { path: '/cadastrocliente', component: CadastroCliente, name: 'CadastroCliente', meta: { requiresAuth: true, requiresCliente: true } },
   { path: '/suportecliente', component: SuporteCliente, name: 'SuporteCliente', meta: { requiresAuth: true, requiresCliente: true } },
   { path: '/admin', component: () => import('../views/Admin.vue'), name: 'Admin', meta: { requiresAuth: true, requiresAdmin: true } },
+  {    path: '/Relatorios',name: 'Relatorios',component: Relatorios  },
 ]
 
 const router = createRouter({
